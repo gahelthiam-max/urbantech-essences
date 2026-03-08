@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UrbanTech & Essences - Tech & Spiritualité</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'serif': ['Playfair Display', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'gold': '#D4AF37',
+                        'deep-black': '#0a0a0a',
+                        'tech-blue': '#0066FF',
+                        'africa-orange': '#E85D04',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #D4AF37 0%, #F4E8C1 50%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .cart-sidebar {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .cart-sidebar.open {
+            transform: translateX(0);
+        }
+        .admin-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .admin-sidebar.open {
+            transform: translateX(0);
+        }
+        .payment-modal {
+            display: none;
+        }
+        .payment-modal.active {
+            display: flex;
+        }
+        .product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .group:hover .product-image {
+            transform: scale(1.05);
+        }
+        .section-banner {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-deep-black text-white font-sans overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed w-full z-40 transition-all duration-300 top-0">
+        <div class="glass-effect">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-20">
+                    <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-yellow-600 flex items-center justify-center">
+                            <i class="fas fa-infinity text-deep-black text-xl"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-serif text-xl font-bold tracking-wider">URBANTECH</span>
+                            <span class="text-xs text-gold tracking-[0.3em]">& ESSENCES</span>
+                        </div>
+                    </div>
+
+                    <div class="hidden md:flex items-center space-x-8">
+                        <a href="#tissus" class="text-gray-300 hover:text-gold transition-colors text-sm uppercase tracking-wider">Tissus</a>
+                        <a href="#wax" class="text-gray-300 hover:text-africa-orange transition-colors text-sm uppercase tracking-wider">Wax</a>
+                        <a href="#parfums" class="text-gray-300 hover:text-gold transition-colors text-sm uppercase tracking-wider">Parfums</a>
+                        <a href="#tech" class="text-gray-300 hover:text-tech-blue transition-colors text-sm uppercase tracking-wider">Montres</a>
+                    </div>
+
+                    <div class="flex items-center gap-6">
+                        <button onclick="toggleAdmin()" class="text-gray-300 hover:text-gold transition-colors">
+                            <i class="fas fa-lock text-lg"></i>
+                        </button>
+                        <button onclick="toggleCart()" class="text-gray-300 hover:text-white transition-colors relative">
+                            <i class="fas fa-shopping-bag text-lg"></i>
+                            <span id="cart-count" class="absolute -top-2 -right-2 bg-gold text-deep-black text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">0</span>
+                        </button>
+                        <button class="md:hidden text-gray-300" onclick="toggleMenu()">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/60 z-50 hidden backdrop-blur-sm"></div>
+    <div id="cart-sidebar" class="cart-sidebar fixed right-0 top-0 h-full w-full md:w-[450px] bg-deep-black border-l border-white/10 z-50 shadow-2xl flex flex-col">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center">
+            <h2 class="font-serif text-2xl text-white flex items-center gap-3">
+                <i class="fas fa-shopping-bag text-gold"></i>
+                Votre Panier
+            </h2>
+            <button onclick="toggleCart()" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4">
+            <div class="text-center text-gray-500 mt-20">
+                <i class="fas fa-shopping-basket text-6xl mb-4 opacity-30"></i>
+                <p>Votre panier est vide</p>
+            </div>
+        </div>
+
+        <div class="border-t border-white/10 p-6 space-y-4">
+            <div class="flex justify-between text-xl font-bold text-white">
+                <span>Total</span>
+                <span id="cart-total" class="text-gold">0,00 €</span>
+            </div>
+            <button onclick="openPaymentModal()" id="checkout-btn" disabled class="w-full py-4 bg-gradient-to-r from-gold to-yellow-600 text-deep-black font-bold rounded-full disabled:opacity-50 disabled:cursor-not-allowed">
+                Passer la commande
+            </button>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="payment-modal fixed inset-0 z-[60] items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-deep-black border border-white/10 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-deep-black z-10">
+                <h2 class="font-serif text-2xl text-white">Paiement sécurisé</h2>
+                <button onclick="closePaymentModal()" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <div class="bg-white/5 rounded-2xl p-4">
+                    <h3 class="font-bold text-white mb-3">Récapitulatif</h3>
+                    <div id="payment-summary" class="space-y-2 text-sm"></div>
+                    <div class="border-t border-white/10 pt-2 mt-2 flex justify-between font-bold text-lg">
+                        <span>Total</span>
+                        <span id="payment-total" class="text-gold">0,00 €</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="font-bold text-white">Mode de paiement</h3>
+                    <label class="flex items-center gap-4 p-4 border border-white/10 rounded-xl cursor-pointer hover:border-gold/50 transition-colors">
+                        <input type="radio" name="payment" value="card" class="w-5 h-5 accent-gold" checked>
+                        <div class="flex items-center gap-2 text-white font-medium">
+                            <i class="fas fa-credit-card text-gold"></i>
+                            Carte bancaire
+                        </div>
+                    </label>
+                    <label class="flex items-center gap-4 p-4 border border-white/10 rounded-xl cursor-pointer hover:border-gold/50 transition-colors">
+                        <input type="radio" name="payment" value="paypal" class="w-5 h-5 accent-gold">
+                        <div class="flex items-center gap-2 text-white font-medium">
+                            <i class="fab fa-paypal text-blue-400"></i>
+                            PayPal
+                        </div>
+                    </label>
+                </div>
+
+                <button onclick="processPayment()" class="w-full py-4 bg-gradient-to-r from-gold to-yellow-600 text-deep-black font-bold rounded-full">
+                    Payer maintenant
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-overlay" onclick="toggleAdmin()" class="fixed inset-0 bg-black/60 z-50 hidden backdrop-blur-sm"></div>
+    <div id="admin-sidebar" class="admin-sidebar fixed left-0 top-0 h-full w-full md:w-[400px] bg-deep-black border-r border-white/10 z-50 shadow-2xl flex flex-col">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center">
+            <h2 class="font-serif text-2xl text-white">Administration</h2>
+            <button onclick="toggleAdmin()" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-6">
+            <div id="admin-login" class="space-y-4">
+                <div class="text-center mb-6">
+                    <div class="w-20 h-20 mx-auto bg-gold/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-lock text-3xl text-gold"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Connexion Admin</h3>
+                </div>
+                <input type="text" id="admin-user" placeholder="Identifiant" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-gold focus:outline-none">
+                <input type="password" id="admin-pass" placeholder="Mot de passe" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:border-gold focus:outline-none">
+                <button onclick="loginAdmin()" class="w-full py-3 bg-gold text-deep-black font-bold rounded-xl">Se connecter</button>
+                <p class="text-xs text-center text-gray-500">Demo: admin / admin123</p>
+            </div>
+
+            <div id="admin-dashboard" class="hidden space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/5 p-4 rounded-xl text-center">
+                        <div class="text-3xl font-bold text-gold" id="admin-total-sales">0 €</div>
+                        <div class="text-xs text-gray-400 mt-1">Ventes</div>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-xl text-center">
+                        <div class="text-3xl font-bold text-tech-blue" id="admin-total-orders">0</div>
+                        <div class="text-xs text-gray-400 mt-1">Commandes</div>
+                    </div>
+                </div>
+                <div id="admin-orders-list" class="space-y-3"></div>
+                <button onclick="logoutAdmin()" class="w-full py-3 border border-red-500/50 text-red-400 rounded-xl">Déconnexion</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-gold text-deep-black px-6 py-4 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-[70]">
+        <span id="toast-message">Produit ajouté</span>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+        <div class="absolute inset-0 z-0">
+            <div class="absolute top-20 left-10 w-72 h-72 bg-gold/20 rounded-full blur-[100px]"></div>
+            <div class="absolute bottom-20 right-10 w-96 h-96 bg-africa-orange/10 rounded-full blur-[120px]"></div>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gold text-sm uppercase tracking-[0.4em] mb-4">Bienvenue chez</p>
+            <h1 class="font-serif text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
+                <span class="block text-white">Tech Intelligente</span>
+                <span class="block gradient-text mt-2">Essence Authentique</span>
+            </h1>
+            
+            <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+                <!-- Tissus Hero - REMPLIR ICI -->
+                <div class="glass-effect p-6 rounded-2xl hover-lift cursor-pointer" onclick="scrollToSection('tissus')">
+                    <div class="h-32 rounded-xl mb-4 overflow-hidden">
+                        <img src="https://i.imgur.com/bJXlYyj.jpeg" class="w-full h-full object-cover" alt="Tissus">
+                    </div>
+                    <h3 class="font-serif text-lg text-gold">Tissus Bazin</h3>
+                    <p class="text-gray-400 text-sm">35€</p>
+                </div>
+
+                <!-- Wax Hero - REMPLIR ICI -->
+                <div class="glass-effect p-6 rounded-2xl hover-lift cursor-pointer" onclick="scrollToSection('wax')">
+                    <div class="h-32 rounded-xl mb-4 overflow-hidden">
+                        <img src="https://i.imgur.com/m920zQV.jpeg" class="w-full h-full object-cover" alt="Wax">
+                    </div>
+                    <h3 class="font-serif text-lg text-africa-orange">Wax & Kente</h3>
+                    <p class="text-gray-400 text-sm">21€</p>
+                </div>
+
+                <!-- Parfums Hero - REMPLIR ICI -->
+                <div class="glass-effect p-6 rounded-2xl hover-lift cursor-pointer" onclick="scrollToSection('parfums')">
+                    <div class="h-32 rounded-xl mb-4 overflow-hidden bg-white/5 flex items-center justify-center">
+                        <img src="https://i.imgur.com/g8ib68D.jpeg" class="w-full h-full object-contain p-2" alt="Parfums">
+                    </div>
+                    <h3 class="font-serif text-lg text-gold">Parfums</h3>
+                    <p class="text-gray-400 text-sm">15-100€</p>
+                </div>
+
+                <!-- Montres Hero - REMPLIR ICI -->
+                <div class="glass-effect p-6 rounded-2xl hover-lift cursor-pointer" onclick="scrollToSection('tech')">
+                    <div class="h-32 rounded-xl mb-4 overflow-hidden bg-white/5 flex items-center justify-center">
+                        <img src="https://i.imgur.com/iNLUfB4.jpeg" class="w-full h-full object-contain p-2" alt="Montres">
+                    </div>
+                    <h3 class="font-serif text-lg text-tech-blue">Montres</h3>
+                    <p class="text-gray-400 text-sm">35-50€</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tissus Bazin (35€) AVEC BANNIÈRE -->
+    <section id="tissus" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- BANNIERE TISSUS - REMPLIR ICI -->
+            <div class="mb-12">
+                <img src="https://i.imgur.com/bJXlYyj.jpeg" class="section-banner" alt="Bannière Tissus">
+            </div>
+
+            <div class="flex flex-col md:flex-row items-center justify-between mb-16">
+                <div>
+                    <span class="text-gold text-sm uppercase tracking-widest">Premium Quality</span>
+                    <h2 class="font-serif text-4xl md:text-5xl text-white mt-2">Tissus Bazin & Gezner</h2>
+                </div>
+                <div class="text-right mt-6 md:mt-0">
+                    <span class="text-4xl font-bold text-gold">35€</span>
+                    <p class="text-sm text-gray-400">le yard</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="tissus-grid"></div>
+        </div>
+    </section>
+
+    <!-- Wax (21€) AVEC BANNIÈRE -->
+    <section id="wax" class="py-24 relative bg-gradient-to-b from-deep-black via-orange-950/20 to-deep-black">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- BANNIERE WAX - REMPLIR ICI -->
+            <div class="mb-12">
+                <img src="https://i.imgur.com/m920zQV.jpeg" class="section-banner" alt="Bannière Wax">
+            </div>
+
+            <div class="flex flex-col md:flex-row items-center justify-between mb-16">
+                <div>
+                    <span class="text-africa-orange text-sm uppercase tracking-widest">Tradition Africaine</span>
+                    <h2 class="font-serif text-4xl md:text-5xl text-white mt-2">Wax & Étoles</h2>
+                </div>
+                <div class="text-right mt-6 md:mt-0">
+                    <span class="text-4xl font-bold text-africa-orange">21€</span>
+                    <p class="text-sm text-gray-400">la pièce</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="wax-grid"></div>
+        </div>
+    </section>
+
+    <!-- Parfums, Huiles & Encens AVEC BANNIÈRE -->
+    <section id="parfums" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- BANNIERE PARFUMS - REMPLIR ICI -->
+            <div class="mb-12">
+                <img src="https://i.imgur.com/g8ib68D.jpeg" class="section-banner" alt="Bannière Parfums">
+            </div>
+
+            <div class="mb-16">
+                <span class="text-gold text-sm uppercase tracking-widest">Oud & Oriental</span>
+                <h2 class="font-serif text-4xl md:text-5xl text-white mt-2">Parfums, Huiles & Encens</h2>
+            </div>
+
+            <div class="mb-12">
+                <h3 class="text-2xl font-serif text-gold mb-6">Parfums (45€ - 100€)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="parfums-grid"></div>
+            </div>
+
+            <div class="mb-12">
+                <h3 class="text-2xl font-serif text-gold mb-6">Huiles (25€ - 35€)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="huiles-grid"></div>
+            </div>
+
+            <div>
+                <h3 class="text-2xl font-serif text-gold mb-6">Encens (15€ - 20€)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="encens-grid"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Montres AVEC BANNIÈRE -->
+    <section id="tech" class="py-24 relative bg-gradient-to-b from-deep-black via-blue-950/20 to-deep-black">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- BANNIERE MONTRES - REMPLIR ICI -->
+            <div class="mb-12">
+                <img src="https://i.imgur.com/iNLUfB4.jpeg" class="section-banner" alt="Bannière Montres">
+            </div>
+
+            <div class="flex flex-col md:flex-row items-center justify-between mb-16">
+                <div>
+                    <span class="text-tech-blue text-sm uppercase tracking-widest">Smart Technology</span>
+                    <h2 class="font-serif text-4xl md:text-5xl text-white mt-2">Montres Connectées</h2>
+                </div>
+                <div class="text-right mt-6 md:mt-0">
+                    <span class="text-4xl font-bold text-tech-blue">35€ - 50€</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="tech-grid"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black border-t border-white/10 pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            © 2025 UrbanTech & Essences. Tous droits réservés.
+        </div>
+    </footer>
+
+    <script>
+        // URLs Imgur - DÉJÀ REMPLIES PAR VOUS
+        const images = {
+            // TISSUS BAZIN (9 images) - 35€
+            tissu1: 'https://i.imgur.com/bJXlYyj.jpeg',
+            tissu2: 'https://i.imgur.com/teDb1KU.jpeg',
+            tissu3: 'https://i.imgur.com/W9JXRVl.jpeg',
+            tissu4: 'https://i.imgur.com/w4JKGBx.jpeg',
+            tissu5: 'https://i.imgur.com/VuWePK7.jpeg',
+            tissu6: 'https://i.imgur.com/L4UO96C.jpeg',
+            tissu7: 'https://i.imgur.com/wLaN6Xl.jpeg',
+            tissu8: 'https://i.imgur.com/v3YRkiI.jpeg',
+            tissu9: 'https://i.imgur.com/niw80VF.jpeg',
+            
+            // WAX (7 images) - 21€
+            wax1: 'https://i.imgur.com/m920zQV.jpeg',
+            wax2: 'https://i.imgur.com/hOjpCF6.jpeg',
+            wax3: 'https://i.imgur.com/aBCs5Bg.jpeg',
+            wax4: 'https://i.imgur.com/OuP3y5J.jpeg',
+            wax5: 'https://i.imgur.com/DnBcXXA.jpeg',
+            wax6: 'https://i.imgur.com/70h0W12.jpeg',
+            wax7: 'https://i.imgur.com/x8goAUI.jpeg',
+            
+            // PARFUMS (7 images) - 45-100€
+            parfum1: 'https://i.imgur.com/g8ib68D.jpeg',
+            parfum2: 'https://i.imgur.com/H7zV6qI.jpeg',
+            parfum3: 'https://i.imgur.com/xvhcWUL.jpeg',
+            parfum4: 'https://i.imgur.com/2h8TsDA.jpeg',
+            parfum5: 'https://i.imgur.com/B1hJbKl.jpeg',
+            parfum6: 'https://i.imgur.com/PoArYYz.jpeg',
+            parfum7: 'https://i.imgur.com/1bUNeOT.jpeg',
+            
+            // HUILES (3 images) - 25-35€
+            huile1: 'https://i.imgur.com/JIvxbcL.jpeg',
+            huile2: 'https://i.imgur.com/skquWqK.jpeg',
+            huile3: 'https://i.imgur.com/PUpIPMR.jpeg',
+            
+            // ENCENS (2 images) - 15-20€
+            encens1: 'https://i.imgur.com/MkT4iAA.jpeg',
+            encens2: 'https://i.imgur.com/cVBAVNK.jpeg',
+            
+            // MONTRES (6 images) - 35-50€
+            montre1: 'https://i.imgur.com/iNLUfB4.jpeg',
+            montre2: 'https://i.imgur.com/rho07ji.jpeg',
+            montre3: 'https://i.imgur.com/jldG8qN.jpeg',
+            montre4: 'https://i.imgur.com/ZQE3ioc.jpeg',
+            montre5: 'https://i.imgur.com/VMVN9ys.jpeg',
+            montre6: 'https://i.imgur.com/kXfkcS0.jpeg',
+        };
+
+        const products = {
+            tissus: [
+                { id: 'tissu-1', name: 'Bazin Gezner Blanc', price: 35, image: images.tissu1, description: 'Premium qualité' },
+                { id: 'tissu-2', name: 'Bazin Gezner Bleu', price: 35, image: images.tissu2, description: 'Premium qualité' },
+                { id: 'tissu-3', name: 'Bazin Gezner Marron', price: 35, image: images.tissu3, description: 'Premium qualité' },
+                { id: 'tissu-4', name: 'Bazin Gezner Orange', price: 35, image: images.tissu4, description: 'Premium qualité' },
+                { id: 'tissu-5', name: 'Bazin Gezner Marron Claire', price: 35, image: images.tissu5, description: 'Premium qualité' },
+                { id: 'tissu-6', name: 'Bazin Gezner Violet', price: 35, image: images.tissu6, description: 'Premium qualité' },
+                { id: 'tissu-7', name: 'Bazin Gezner Bleu Claire', price: 35, image: images.tissu7, description: 'Premium qualité' },
+                { id: 'tissu-8', name: 'Bazin Gezner Blanc 2', price: 35, image: images.tissu8, description: 'Premium qualité' },
+                { id: 'tissu-9', name: 'Bazin Gezner Wax', price: 35, image: images.tissu9, description: 'Premium qualité' }
+            ],
+            wax: [
+                { id: 'wax-1', name: 'Wax Moderne', price: 21, image: images.wax1, description: 'Motif africain' },
+                { id: 'wax-2', name: 'Wax Kente Bleu/Jaune', price: 21, image: images.wax2, description: 'Traditionnel' },
+                { id: 'wax-3', name: 'Wax Kente Bleu Foncé', price: 21, image: images.wax3, description: 'Royal' },
+                { id: 'wax-4', name: 'Wax Exclusif 1', price: 21, image: images.wax4, description: 'Élégant' },
+                { id: 'wax-5', name: 'Wax Exclusif 2', price: 21, image: images.wax5, description: 'Élégant' },
+                { id: 'wax-6', name: 'Wax Exclusif 3', price: 21, image: images.wax6, description: 'Élégant' },
+                { id: 'wax-7', name: 'Wax Kente Classique', price: 21, image: images.wax7, description: 'Authentique' }
+            ],
+            parfums: [
+                { id: 'parfum-1', name: 'Oud Premium', price: 65, image: images.parfum1, description: 'Oud de qualité' },
+                { id: 'parfum-2', name: 'Oud Oriental', price: 75, image: images.parfum2, description: 'Oud oriental' },
+                { id: 'parfum-3', name: 'Oud Royal', price: 85, image: images.parfum3, description: 'Oud royal' },
+                { id: 'parfum-4', name: 'Oud Classique', price: 60, image: images.parfum4, description: 'Oud pur' },
+                { id: 'parfum-5', name: 'Oud Élégant', price: 55, image: images.parfum5, description: 'Oud raffiné' },
+                { id: 'parfum-6', name: 'Oud Suprême', price: 50, image: images.parfum6, description: 'Oud supérieur' },
+                { id: 'parfum-7', name: 'Oud Prestige', price: 45, image: images.parfum7, description: 'Oud prestige' }
+            ],
+            huiles: [
+                { id: 'huile-1', name: 'Huile Oud Premium', price: 35, image: images.huile1, description: 'Grade AAA' },
+                { id: 'huile-2', name: 'Huile Oud Pure', price: 30, image: images.huile2, description: 'Premium' },
+                { id: 'huile-3', name: 'Huile Oud Essence', price: 25, image: images.huile3, description: 'Qualité' }
+            ],
+            encens: [
+                { id: 'encens-1', name: 'Bakhoor Al Hami', price: 18, image: images.encens1, description: 'Traditionnel' },
+                { id: 'encens-2', name: 'Bakhoour Ayan', price: 15, image: images.encens2, description: 'Naturel' }
+            ],
+            tech: [
+                { id: 'montre-1', name: 'Smart Watch Pro', price: 45, image: images.montre1, description: 'Bluetooth' },
+                { id: 'montre-2', name: 'Smart Watch Elite', price: 50, image: images.montre2, description: 'IP68' },
+                { id: 'montre-3', name: 'Smart Watch Sport', price: 48, image: images.montre3, description: 'Smart' },
+                { id: 'montre-4', name: 'Smart Watch Health', price: 42, image: images.montre4, description: 'Santé' },
+                { id: 'montre-5', name: 'Smart Watch Ultra', price: 40, image: images.montre5, description: 'HD' },
+                { id: 'montre-6', name: 'Smart Watch Performance', price: 38, image: images.montre6, description: 'Performance' }
+            ]
+        };
+
+        let cart = [];
+        let orders = JSON.parse(localStorage.getItem('orders')) || [];
+        let isAdminLoggedIn = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAllProducts();
+            updateCartUI();
+        });
+
+        function renderAllProducts() {
+            document.getElementById('tissus-grid').innerHTML = products.tissus.map(p => createProductCard(p, 'gold')).join('');
+            document.getElementById('wax-grid').innerHTML = products.wax.map(p => createProductCard(p, 'africa-orange')).join('');
+            document.getElementById('parfums-grid').innerHTML = products.parfums.map(p => createProductCard(p, 'gold')).join('');
+            document.getElementById('huiles-grid').innerHTML = products.huiles.map(p => createProductCard(p, 'gold')).join('');
+            document.getElementById('encens-grid').innerHTML = products.encens.map(p => createProductCard(p, 'gold')).join('');
+            document.getElementById('tech-grid').innerHTML = products.tech.map(p => createProductCard(p, 'tech-blue')).join('');
+        }
+
+        function createProductCard(product, colorTheme) {
+            const isTech = colorTheme === 'tech-blue';
+            return `
+                <div class="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-gray-900 to-deep-black border border-${colorTheme}/20 hover:border-${colorTheme}/50 transition-all hover-lift">
+                    <div class="aspect-square overflow-hidden relative bg-gray-800">
+                        <img src="${product.image}" alt="${product.name}" class="product-image" loading="lazy">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-serif text-lg text-white">${product.name}</h3>
+                            <span class="text-${colorTheme} font-bold text-xl">${product.price}€</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">${product.description}</p>
+                        <button onclick="addToCart('${product.id}', '${product.name}', ${product.price})" 
+                                class="w-full py-3 bg-${colorTheme}/10 text-${colorTheme} rounded-lg hover:bg-${colorTheme} hover:text-${isTech ? 'white' : 'deep-black'} transition-all text-sm font-medium flex items-center justify-center gap-2">
+                            <i class="fas fa-plus"></i> Ajouter au panier
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addToCart(id, name, price) {
+            const existingItem = cart.find(item => item.id === id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ id, name, price, quantity: 1 });
+            }
+            updateCartUI();
+            showToast(`${name} ajouté au panier`);
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartUI();
+        }
+
+        function updateQuantity(id, change) {
+            const item = cart.find(item => item.id === id);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) removeFromCart(id);
+                else updateCartUI();
+            }
+        }
+
+        function updateCartUI() {
+            const cartCount = document.getElementById('cart-count');
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            cartCount.textContent = totalItems;
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div class="text-center text-gray-500 mt-20">
+                        <i class="fas fa-shopping-basket text-6xl mb-4 opacity-30"></i>
+                        <p>Votre panier est vide</p>
+                    </div>
+                `;
+                checkoutBtn.disabled = true;
+            } else {
+                cartItems.innerHTML = cart.map(item => `
+                    <div class="flex gap-4 bg-white/5 p-4 rounded-xl">
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-medium text-white text-sm">${item.name}</h4>
+                                <button onclick="removeFromCart('${item.id}')" class="text-gray-500 hover:text-red-400">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3 bg-white/5 rounded-lg px-2 py-1">
+                                    <button onclick="updateQuantity('${item.id}', -1)" class="w-6 h-6 flex items-center justify-center text-gold hover:bg-white/10 rounded">
+                                        <i class="fas fa-minus text-xs"></i>
+                                    </button>
+                                    <span class="text-sm font-medium">${item.quantity}</span>
+                                    <button onclick="updateQuantity('${item.id}', 1)" class="w-6 h-6 flex items-center justify-center text-gold hover:bg-white/10 rounded">
+                                        <i class="fas fa-plus text-xs"></i>
+                                    </button>
+                                </div>
+                                <span class="font-bold text-gold">${(item.price * item.quantity).toFixed(2)}€</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                checkoutBtn.disabled = false;
+            }
+            
+            cartTotal.textContent = total.toFixed(2) + ' €';
+        }
+
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            const overlay = document.getElementById('cart-overlay');
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            } else {
+                overlay.classList.remove('hidden');
+                setTimeout(() => sidebar.classList.add('open'), 10);
+            }
+        }
+
+        function openPaymentModal() {
+            const modal = document.getElementById('payment-modal');
+            const summary = document.getElementById('payment-summary');
+            const total = document.getElementById('payment-total');
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            summary.innerHTML = cart.map(item => `
+                <div class="flex justify-between items-center py-2 border-b border-white/5">
+                    <span class="text-gray-400">${item.quantity}x ${item.name}</span>
+                    <span class="text-gold">${(item.price * item.quantity).toFixed(2)}€</span>
+                </div>
+            `).join('');
+            
+            total.textContent = subtotal.toFixed(2) + ' €';
+            modal.classList.add('active');
+            toggleCart();
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.remove('active');
+        }
+
+        function processPayment() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const order = {
+                id: 'ORD-' + Date.now(),
+                date: new Date().toLocaleDateString('fr-FR'),
+                items: [...cart],
+                total: total,
+                status: 'Payée'
+            };
+            orders.unshift(order);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            cart = [];
+            updateCartUI();
+            closePaymentModal();
+            showToast('Paiement réussi !');
+            if (isAdminLoggedIn) loadAdminData();
+        }
+
+        function toggleAdmin() {
+            const sidebar = document.getElementById('admin-sidebar');
+            const overlay = document.getElementById('admin-overlay');
+            if (sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            } else {
+                overlay.classList.remove('hidden');
+                setTimeout(() => sidebar.classList.add('open'), 10);
+            }
+        }
+
+        function loginAdmin() {
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+            if (user === 'admin' && pass === 'admin123') {
+                isAdminLoggedIn = true;
+                document.getElementById('admin-login').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                loadAdminData();
+                showToast('Connexion réussie');
+            } else {
+                showToast('Identifiants incorrects');
+            }
+        }
+
+        function logoutAdmin() {
+            isAdminLoggedIn = false;
+            document.getElementById('admin-login').classList.remove('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+        }
+
+        function loadAdminData() {
+            const totalSales = orders.reduce((sum, order) => sum + order.total, 0);
+            document.getElementById('admin-total-sales').textContent = totalSales.toFixed(2) + ' €';
+            document.getElementById('admin-total-orders').textContent = orders.length;
+            
+            const ordersList = document.getElementById('admin-orders-list');
+            ordersList.innerHTML = orders.length === 0 ? '<p class="text-gray-500 text-sm text-center">Aucune commande</p>' :
+                orders.map(o => `
+                    <div class="bg-white/5 p-4 rounded-lg">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="text-gold font-bold text-sm">${o.id}</div>
+                                <div class="text-xs text-gray-400">${o.date}</div>
+                            </div>
+                            <span class="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded">${o.status}</span>
+                        </div>
+                        <div class="text-xs text-gray-300 mt-2">${o.total.toFixed(2)}€</div>
+                    </div>
+                `).join('');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
+        }
+
+        function toggleMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) navbar.classList.add('shadow-lg');
+            else navbar.classList.remove('shadow-lg');
+        });
+    </script>
+</body>
+</html>
