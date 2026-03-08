@@ -20,6 +20,7 @@
                         'deep-black': '#0a0a0a',
                         'tech-blue': '#0066FF',
                         'africa-orange': '#E85D04',
+                        'whatsapp': '#25D366',
                     }
                 }
             }
@@ -90,6 +91,19 @@
             background: #D4AF37;
             border-radius: 4px;
         }
+        .whatsapp-btn {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+        }
+        .email-btn {
+            background: linear-gradient(135deg, #EA4335 0%, #FBBC05 100%);
+        }
+        .contact-btn {
+            transition: all 0.3s ease;
+        }
+        .contact-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body class="bg-deep-black text-white font-sans overflow-x-hidden">
@@ -159,69 +173,79 @@
                 <span id="cart-total" class="text-gold">0,00 €</span>
             </div>
             <button onclick="openPaymentModal()" id="checkout-btn" disabled class="w-full py-4 bg-gradient-to-r from-gold to-yellow-600 text-deep-black font-bold rounded-full disabled:opacity-50 disabled:cursor-not-allowed">
-                Passer la commande
+                Finaliser la commande
             </button>
         </div>
     </div>
 
-    <!-- Payment Modal avec Stripe -->
+    <!-- Payment Modal - NOUVELLE VERSION SIMPLE -->
     <div id="payment-modal" class="payment-modal fixed inset-0 z-[60] items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
         <div class="bg-deep-black border border-white/10 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div class="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-deep-black z-10">
-                <h2 class="font-serif text-2xl text-white">Paiement sécurisé</h2>
+                <h2 class="font-serif text-2xl text-white">Finaliser votre commande</h2>
                 <button onclick="closePaymentModal()" class="text-gray-400 hover:text-white transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
             
             <div class="p-6 space-y-6">
+                <!-- Récapitulatif -->
                 <div class="bg-white/5 rounded-2xl p-4">
-                    <h3 class="font-bold text-white mb-3">Récapitulatif de votre commande</h3>
-                    <div id="payment-summary" class="space-y-2 text-sm"></div>
-                    <div class="border-t border-white/10 pt-2 mt-2 flex justify-between font-bold text-lg">
+                    <h3 class="font-bold text-white mb-3 flex items-center gap-2">
+                        <i class="fas fa-receipt text-gold"></i>
+                        Récapitulatif de votre commande
+                    </h3>
+                    <div id="payment-summary" class="space-y-2 text-sm max-h-48 overflow-y-auto"></div>
+                    <div class="border-t border-white/10 pt-3 mt-3 flex justify-between font-bold text-lg">
                         <span>Total à payer</span>
                         <span id="payment-total" class="text-gold">0,00 €</span>
                     </div>
                 </div>
 
+                <!-- Options de contact -->
                 <div class="space-y-4">
-                    <h3 class="font-bold text-white">Choisissez votre mode de paiement</h3>
+                    <h3 class="font-bold text-white text-center text-lg mb-6">Choisissez comment nous contacter</h3>
                     
-                    <!-- Stripe Payment -->
-                    <button onclick="processStripePayment()" class="w-full p-4 border border-white/10 rounded-xl hover:border-gold/50 transition-colors bg-white/5 text-left">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-gold/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-credit-card text-gold text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="text-white font-medium">Carte bancaire</div>
-                                <div class="text-gray-400 text-sm">Paiement sécurisé par Stripe</div>
-                            </div>
-                            <div class="ml-auto flex gap-2">
-                                <i class="fab fa-cc-visa text-2xl text-gray-400"></i>
-                                <i class="fab fa-cc-mastercard text-2xl text-gray-400"></i>
-                            </div>
+                    <!-- WhatsApp -->
+                    <a id="whatsapp-link" href="#" target="_blank" class="contact-btn whatsapp-btn w-full p-4 rounded-2xl text-white flex items-center gap-4 block">
+                        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fab fa-whatsapp text-3xl"></i>
                         </div>
-                    </button>
+                        <div class="flex-1">
+                            <div class="font-bold text-lg">Commander via WhatsApp</div>
+                            <div class="text-white/80 text-sm">Envoyez votre commande pré-remplie</div>
+                        </div>
+                        <i class="fas fa-arrow-right text-xl"></i>
+                    </a>
 
-                    <!-- PayPal -->
-                    <button onclick="processPayPalPayment()" class="w-full p-4 border border-white/10 rounded-xl hover:border-blue-400/50 transition-colors bg-white/5 text-left">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                                <i class="fab fa-paypal text-blue-400 text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="text-white font-medium">PayPal</div>
-                                <div class="text-gray-400 text-sm">Payer avec votre compte PayPal</div>
-                            </div>
+                    <!-- Email -->
+                    <a id="email-link" href="#" class="contact-btn email-btn w-full p-4 rounded-2xl text-white flex items-center gap-4 block">
+                        <div class="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-envelope text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-bold text-lg">Commander par Email</div>
+                            <div class="text-white/80 text-sm">Envoyez votre commande par email</div>
+                        </div>
+                        <i class="fas fa-arrow-right text-xl"></i>
+                    </a>
+
+                    <!-- Copier le récap -->
+                    <button onclick="copyOrderToClipboard()" class="w-full p-4 border border-white/20 rounded-2xl text-gray-300 hover:bg-white/5 transition-colors flex items-center gap-4">
+                        <div class="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-copy text-xl"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <div class="font-bold text-white">Copier la commande</div>
+                            <div class="text-gray-400 text-sm">Copier le texte pour le coller ailleurs</div>
                         </div>
                     </button>
                 </div>
 
                 <div class="bg-gold/10 border border-gold/30 rounded-xl p-4">
                     <p class="text-sm text-gold text-center">
-                        <i class="fas fa-shield-alt mr-2"></i>
-                        Vos informations de paiement sont sécurisées et cryptées
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Nous vous répondrons rapidement pour confirmer votre commande et organiser le paiement (espèces, virement ou mobile money)
                     </p>
                 </div>
             </div>
@@ -432,44 +456,51 @@
 
     <!-- Footer -->
     <footer class="bg-black border-t border-white/10 pt-16 pb-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
-            © 2025 UrbanTech & Essences. Tous droits réservés.
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-gold/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fab fa-whatsapp text-whatsapp text-2xl"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-2">WhatsApp</h4>
+                    <p class="text-gray-400 text-sm">+33 6 12 34 56 78</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-gold/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-envelope text-gold text-2xl"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-2">Email</h4>
+                    <p class="text-gray-400 text-sm">contact@urbantech.fr</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 mx-auto bg-gold/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-map-marker-alt text-gold text-2xl"></i>
+                    </div>
+                    <h4 class="font-bold text-white mb-2">Livraison</h4>
+                    <p class="text-gray-400 text-sm">Paris & Île-de-France</p>
+                </div>
+            </div>
+            <div class="text-center text-gray-500 text-sm border-t border-white/10 pt-8">
+                © 2025 UrbanTech & Essences. Tous droits réservés.
+            </div>
         </div>
     </footer>
 
     <script>
         // ============================================
-        // CONFIGURATION STRIPE - REMPLIR CES LIENS
+        // CONFIGURATION - MODIFIEZ CES INFOS
         // ============================================
         
-        // Créez ces liens dans votre dashboard Stripe (Payment Links)
-        // Format : https://buy.stripe.com/test_xxxxxxxxxxxxx
-        const stripeLinks = {
-            // Liens pour chaque tranche de prix (en centimes pour Stripe)
-            // Exemple : 3500 = 35€, 2100 = 21€, etc.
-            3500: 'https://buy.stripe.com/test_5kQ00l9XI7XE3hTcIscwg00', // 35€
-            2100: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 21€
-            1500: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 15€
-            1800: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 18€
-            2000: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 20€
-            2500: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 25€
-            3000: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 30€
-            3500: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 35€ (huiles)
-            3800: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 38€
-            4000: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 40€
-            4200: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 42€
-            4500: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 45€
-            4800: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 48€
-            5000: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 50€
-            5500: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 55€
-            6000: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 60€
-            6500: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 65€
-            7500: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 75€
-            8500: 'https://buy.stripe.com/test_xxxxxxxxxxxxx', // 85€
+        const CONFIG = {
+            // Votre numéro WhatsApp avec indicatif
+            whatsappNumber: '+221777421725',
+            
+            // Votre email de contact
+            email: 'thiambusinessservices.infos@gmail.com',
+            
+            // Nom de votre entreprise
+            businessName: 'UrbanTech & Essences'
         };
-
-        // Liens PayPal (optionnel - à configurer aussi)
-        const paypalLink = 'https://www.paypal.com/paypalme/votreNomPayPal';
 
         // URLs Imgur - DÉJÀ REMPLIES
         const images = {
@@ -572,6 +603,7 @@
         let cart = [];
         let orders = JSON.parse(localStorage.getItem('orders')) || [];
         let isAdminLoggedIn = false;
+        let currentOrderText = '';
 
         document.addEventListener('DOMContentLoaded', () => {
             renderAllProducts();
@@ -696,12 +728,17 @@
             }
         }
 
+        // ============================================
+        // NOUVEAU SYSTÈME DE COMMANDE SIMPLIFIÉ
+        // ============================================
+
         function openPaymentModal() {
             const modal = document.getElementById('payment-modal');
             const summary = document.getElementById('payment-summary');
             const total = document.getElementById('payment-total');
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
+            // Générer le récapitulatif visuel
             summary.innerHTML = cart.map(item => `
                 <div class="flex justify-between items-center py-2 border-b border-white/5">
                     <span class="text-gray-400">${item.quantity}x ${item.name}</span>
@@ -710,80 +747,78 @@
             `).join('');
             
             total.textContent = subtotal.toFixed(2) + ' €';
+            
+            // Générer le texte de commande pour WhatsApp et Email
+            generateOrderLinks();
+            
             modal.classList.add('active');
             toggleCart();
         }
 
+        function generateOrderLinks() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const date = new Date().toLocaleDateString('fr-FR');
+            const orderId = 'CMD-' + Date.now().toString().slice(-6);
+            
+            // Texte formaté pour la commande
+            currentOrderText = `🛍️ *NOUVELLE COMMANDE - ${CONFIG.businessName}*
+
+📋 *Commande N°:* ${orderId}
+📅 *Date:* ${date}
+
+🛒 *Articles commandés:*
+${cart.map(item => `• ${item.name} (x${item.quantity}) - ${item.price}€/unité = ${(item.price * item.quantity).toFixed(2)}€`).join('\n')}
+
+💰 *TOTAL: ${subtotal.toFixed(2)}€*
+
+📞 *Coordonnées client:*
+Merci de préciser votre nom, adresse de livraison et mode de paiement préféré (espèces, virement, mobile money).
+
+✅ En attente de confirmation.`;
+            
+            // Lien WhatsApp avec message pré-rempli [^1^]
+            const whatsappText = encodeURIComponent(currentOrderText);
+            const whatsappLink = `https://wa.me/${CONFIG.whatsappNumber}?text=${whatsappText}`;
+            document.getElementById('whatsapp-link').href = whatsappLink;
+            
+            // Lien Email avec sujet et corps pré-remplis [^3^][^6^]
+            const emailSubject = encodeURIComponent(`Nouvelle commande ${orderId} - ${subtotal.toFixed(2)}€`);
+            const emailBody = encodeURIComponent(currentOrderText.replace(/\*/g, '')); // Enlever les * pour l'email
+            const emailLink = `mailto:${CONFIG.email}?subject=${emailSubject}&body=${emailBody}`;
+            document.getElementById('email-link').href = emailLink;
+            
+            // Sauvegarder la commande dans l'historique admin
+            const order = {
+                id: orderId,
+                date: date,
+                items: [...cart],
+                total: subtotal,
+                status: 'En attente',
+                text: currentOrderText
+            };
+            orders.unshift(order);
+            localStorage.setItem('orders', JSON.stringify(orders));
+        }
+
+        function copyOrderToClipboard() {
+            // Copier le texte sans les emojis markdown pour plus de compatibilité
+            const cleanText = currentOrderText.replace(/\*/g, '');
+            navigator.clipboard.writeText(cleanText).then(() => {
+                showToast('Commande copiée dans le presse-papiers !');
+            }).catch(() => {
+                // Fallback pour les anciens navigateurs
+                const textArea = document.createElement('textarea');
+                textArea.value = cleanText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showToast('Commande copiée dans le presse-papiers !');
+            });
+        }
+
         function closePaymentModal() {
             document.getElementById('payment-modal').classList.remove('active');
-        }
-
-        // ============================================
-        // PAIEMENT STRIPE - NOUVELLE FONCTION
-        // ============================================
-        
-        function processStripePayment() {
-            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const totalInCents = Math.round(total * 100); // Convertir en centimes
-            
-            // Chercher le lien Stripe correspondant
-            let stripeUrl = stripeLinks[totalInCents];
-            
-            // Si pas de lien exact, trouver le plus proche ou utiliser un lien par défaut
-            if (!stripeUrl) {
-                // Option 1 : Rediriger vers un lien Stripe avec montant variable
-                // Option 2 : Utiliser un lien par défaut et ajouter la description
-                stripeUrl = stripeLinks[3500] || 'https://buy.stripe.com/test_xxxxxxxxxxxxx'; // Lien par défaut
-            }
-            
-            // Sauvegarder la commande avant redirection
-            const order = {
-                id: 'ORD-' + Date.now(),
-                date: new Date().toLocaleDateString('fr-FR'),
-                items: [...cart],
-                total: total,
-                status: 'En attente de paiement',
-                paymentMethod: 'Stripe'
-            };
-            orders.unshift(order);
-            localStorage.setItem('orders', JSON.stringify(orders));
-            
-            // Vider le panier
-            cart = [];
-            updateCartUI();
-            closePaymentModal();
-            
-            // Redirection vers Stripe
-            window.location.href = stripeUrl;
-        }
-
-        // ============================================
-        // PAIEMENT PAYPAL - ALTERNATIVE
-        // ============================================
-        
-        function processPayPalPayment() {
-            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            
-            // Sauvegarder la commande
-            const order = {
-                id: 'ORD-' + Date.now(),
-                date: new Date().toLocaleDateString('fr-FR'),
-                items: [...cart],
-                total: total,
-                status: 'En attente de paiement',
-                paymentMethod: 'PayPal'
-            };
-            orders.unshift(order);
-            localStorage.setItem('orders', JSON.stringify(orders));
-            
-            // Vider le panier
-            cart = [];
-            updateCartUI();
-            closePaymentModal();
-            
-            // Redirection vers PayPal avec le montant
-            const paypalUrl = `${paypalLink}/${total}EUR`;
-            window.location.href = paypalUrl;
         }
 
         function toggleAdmin() {
@@ -831,11 +866,10 @@
                             <div>
                                 <div class="text-gold font-bold text-sm">${o.id}</div>
                                 <div class="text-xs text-gray-400">${o.date}</div>
-                                <div class="text-xs text-blue-400 mt-1">${o.paymentMethod || 'Non spécifié'}</div>
                             </div>
-                            <span class="text-xs ${o.status === 'Payée' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'} px-2 py-1 rounded">${o.status}</span>
+                            <span class="text-xs ${o.status === 'Confirmée' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'} px-2 py-1 rounded">${o.status}</span>
                         </div>
-                        <div class="text-xs text-gray-300 mt-2">${o.total.toFixed(2)}€</div>
+                        <div class="text-xs text-gray-300 mt-2">${o.total.toFixed(2)}€ - ${o.items.length} article(s)</div>
                     </div>
                 `).join('');
         }
